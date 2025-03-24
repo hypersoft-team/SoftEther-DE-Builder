@@ -7,10 +7,12 @@ jobs:
   build:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-20.04 ]
+        os: [ ubuntu-24.04, ubuntu-20.04 ]
+
     steps:
 
       - name: Checkout
@@ -32,6 +34,12 @@ jobs:
           cmake -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
           cmake --build .
           cpack -C Release -G DEB
+
+          mv *vpncmd* cmd-${{ matrix.os }}.deb
+          mv *common* common-${{ matrix.os }}.deb
+          mv *vpnclient* client-${{ matrix.os }}.deb
+          mv *vpnserver* server-${{ matrix.os }}.deb
+          mv *vpnbridge* bridge-${{ matrix.os }}.deb
 
       - name: Set env
         run: |

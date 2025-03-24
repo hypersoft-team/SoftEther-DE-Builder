@@ -7,12 +7,15 @@ jobs:
   build:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-20.04 ]
+        os: [ ubuntu-24.04, ubuntu-20.04 ]
+
     permissions:
       contents: write
+
     steps:
 
       - name: Get latest version name
@@ -32,7 +35,7 @@ jobs:
       - name: Check confliction
         run: |
           if [ "${{ steps.latest.outputs.tag }}" == "${{ steps.previous.outputs.tag }}" ]; then
-            echo "Release is exists!"
+            echo "Release exists!"
             echo -e "https://github.com/$GITHUB_REPOSITORY/releases/tag/${{ steps.latest.outputs.tag }}"
             exit 1
           fi
@@ -56,6 +59,12 @@ jobs:
           cmake -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
           cmake --build .
           cpack -C Release -G DEB
+
+          mv softether-vpncmd*.deb cmd-${{ matrix.os }}.deb
+          mv softether-common*.deb common-${{ matrix.os }}.deb
+          mv softether-vpnclient*.deb client-${{ matrix.os }}.deb
+          mv softether-vpnserver*.deb server-${{ matrix.os }}.deb
+          mv softether-vpnbridge*.deb bridge-${{ matrix.os }}.deb
 
       - name: Release
         uses: softprops/action-gh-release@v2
